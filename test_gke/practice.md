@@ -48,3 +48,7 @@
    ~~~
    kubectl expose deployment {deployment name} --type LoadBalancer --port 80 --target-port 8080
    ~~~
+7. Load Balancer의 external ip로 접속 테스트
+   ~~~
+   curl -v "http://{ip}:80/api/notes"
+   ~~~
