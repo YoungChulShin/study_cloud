@@ -74,4 +74,79 @@
    kubectl create configmap configmap-sample --from-literal=db.address="{ip}" --from-literal=db.port="{port}" --from-literal=db.user="{user}” --from-literal=db.password="{password}"
    ~~~
    - 느낌표가 있으면 `''`로 묶어준다
-6. deployment를 yaml 
+6. deployment를 생성하기 위한 yaml 파일 생성
+   - env 값과 configmap 값을 매핑해준다
+   ~~~yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+      name: bootsample
+      labels:
+         app: bootsample
+   spec:
+      replicas: 1
+      selector:
+         matchLabels:
+               app: bootsample
+      template:
+         metadata:
+               labels:
+                  app: bootsample
+         spec:
+               containers:
+               - name: bootsample
+               image: {image location}
+               env:
+                  - name: MYSQL_HOST
+                     valueFrom:
+                     configMapKeyRef:
+                           name: configmap-sample
+                           key: db.address
+                  - name: MYSQL_PORT
+                     valueFrom:
+                     configMapKeyRef:
+                           name: configmap-sample
+                           key: db.port
+                  - name: MYSQL_USER
+                     valueFrom:
+                     configMapKeyRef:
+                           name: configmap-sample
+                           key: db.user
+                  - name: MYSQL_PASSWORD
+                     valueFrom:
+                     configMapKeyRef:
+                           name: configmap-sample
+                           key: db.password
+               ports:
+               - containerPort: 8080 
+   ~~~
+
+## secret을 이용한 중요 정보 보호
+1. secret 생성
+   ~~~
+    kubectl create secret generic securitytoken --from-literal user={value1} --from-literal password={value2}
+   ~~~
+2. 환경 설정 값에 security를 반영
+   ~~~yaml
+   env:
+      - name: MYSQL_HOST
+      valueFrom:
+         configMapKeyRef:
+            name: configmap-sample
+            key: db.address
+      - name: MYSQL_PORT
+      valueFrom:
+         configMapKeyRef:
+            name: configmap-sample
+            key: db.port
+      - name: MYSQL_USER
+      valueFrom:
+         secretKeyRef:
+            name: securitytoken
+            key: user
+      - name: MYSQL_PASSWORD
+      valueFrom:
+         secretKeyRef:
+            name: securitytoken
+            key: password
+   ~~~

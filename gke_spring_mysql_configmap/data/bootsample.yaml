@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: bootsample
+    labels:
+        app: bootsample
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: bootsample
+    template:
+        metadata:
+            labels:
+                app: bootsample
+        spec:
+            containers:
+            - name: bootsample
+              image: asia.gcr.io/study-k8s-280123/bootsample
+              env:
+                - name: MYSQL_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                        name: configmap-sample
+                        key: db.address
+                - name: MYSQL_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                        name: configmap-sample
+                        key: db.port
+                - name: MYSQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                        name: securitytoken
+                        key: user
+                - name: MYSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                        name: securitytoken
+                        key: password
+              ports:
+              - containerPort: 8080 
